@@ -35,12 +35,12 @@ function getInputValue(promptMessage) {
 // キーの重複を確認し、新しいキーを取得する
 function getUniqueKey() {
   var sheet = getSheet();
-  var valuesB = sheet.getRange('B:B').getValues().flat();
-  var newKey = getInputValue('新しいKey(B列)の値を入力してください');
+  var valuesA = sheet.getRange('A:A').getValues().flat();
+  var newKey = getInputValue('新しいKey(A列)の値を入力してください');
 
-  while (newKey !== null && valuesB.includes(newKey)) {
-    showMessage('B列に同じ値が既に存在します。別の値を入力してください。');
-    newKey = getInputValue('新しいKey(B列)の値を再度入力してください');
+  while (newKey !== null && valuesA.includes(newKey)) {
+    showMessage('A列に同じ値が既に存在します。別の値を入力してください。');
+    newKey = getInputValue('新しいKey(A列)の値を再度入力してください');
   }
 
   return newKey;
@@ -54,11 +54,11 @@ function addNewRecord() {
   var newKey = getUniqueKey();
   if (newKey === null) return;
 
-  var newRow = [1, newKey];
+  var newRow = [newKey];
 
   var columnLabels = ['SpaceName', 'PJCD', 'PJCDName', 'Overview', 'ContractNumber'];
   for (var i = 0; i < columnLabels.length; i++) {
-    var promptMessage = '新しい' + columnLabels[i] + '(' + String.fromCharCode(67 + i) + '列)の値を入力してください';
+    var promptMessage = '新しい' + columnLabels[i] + '(' + String.fromCharCode(66 + i) + '列)の値を入力してください';
     var newValue = getInputValue(promptMessage);
     if (newValue === null) return;
     newRow.push(newValue);
@@ -81,21 +81,21 @@ function replaceValues() {
   var sheet = getSheet();
   sheet.activate();
 
-  var searchValue = getInputValue('変更対象のKey(B列)を入力してください');
+  var searchValue = getInputValue('変更対象のKey(A列)を入力してください');
   if (searchValue === null) return;
 
-  var replaceValue1 = getInputValue('置換するPJCD(D列)を入力してください');
+  var replaceValue1 = getInputValue('置換するPJCD(C列)を入力してください');
   if (replaceValue1 === null) return;
 
-  var replaceValue2 = getInputValue('置換するPJCDName(E列)を入力してください');
+  var replaceValue2 = getInputValue('置換するPJCDName(D列)を入力してください');
   if (replaceValue2 === null) return;
 
-  var valuesB = sheet.getRange('B:B').getValues().flat();
-  var rowIndex = valuesB.indexOf(searchValue);
+  var valuesA = sheet.getRange('A:A').getValues().flat();
+  var rowIndex = valuesA.indexOf(searchValue);
 
   if (rowIndex !== -1) {
-    replaceCellValue(rowIndex + 1, 4, replaceValue1);
-    replaceCellValue(rowIndex + 1, 5, replaceValue2);
+    replaceCellValue(rowIndex + 1, 3, replaceValue1);
+    replaceCellValue(rowIndex + 1, 4, replaceValue2);
     sheet.getRange(rowIndex + 1, 1).activate();
     showMessage('置換が成功しました');
   } else {
@@ -108,17 +108,15 @@ function deleteSpace() {
   var sheet = getSheet();
   sheet.activate();
 
-  var searchValue = getInputValue('削除対象スペースのKey(B列)を入力してください');
+  var searchValue = getInputValue('削除対象スペースのKey(A列)を入力してください');
   if (searchValue === null) return;
 
-  var valuesB = sheet.getRange('B:B').getValues().flat();
-  var rowIndex = valuesB.indexOf(searchValue);
+  var valuesA = sheet.getRange('A:A').getValues().flat();
+  var rowIndex = valuesA.indexOf(searchValue);
 
   if (rowIndex !== -1) {
-    var valueA = sheet.getRange(rowIndex + 1, 1).getValue();
-    replaceCellValue(rowIndex + 1, 1, valueA === 1 ? 0 : valueA);
-    sheet.getRange(rowIndex + 1, 1).activate();
-    showMessage(valueA === 1 ? '該当のスペースを削除しました' : '該当のスペースは既に削除されています');
+    sheet.deleteRow(rowIndex + 1);
+    showMessage('該当のスペースを削除しました');
   } else {
     showMessage('一致するKeyは存在しませんでした');
   }
